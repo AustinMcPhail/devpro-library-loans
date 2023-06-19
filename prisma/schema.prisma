@@ -1,0 +1,91 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+    provider = "prisma-client-js"
+}
+
+datasource db {
+    provider = "sqlite"
+    url      = env("DATABASE_URL")
+}
+
+model MaterialType {
+    id              String @id @default(uuid())
+    name            String
+    daysCanBeLoaned Int
+    lateFee         Int
+
+    createdAt DateTime   @default(now())
+    updatedAt DateTime   @updatedAt
+    books     Book[]
+    magazines Magazine[]
+    dvds      Movie[]
+    loans     Loan[]
+}
+
+model Book {
+    id     String @id @default(uuid())
+    title  String
+    author String
+    genre  String
+    copies Int
+
+    materialTypeId String
+    materialType   MaterialType @relation(fields: [materialTypeId], references: [id])
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+}
+
+model Magazine {
+    id     String @id @default(uuid())
+    title  String
+    copies Int
+    series String
+    volume Int
+
+    materialTypeId String
+    materialType   MaterialType @relation(fields: [materialTypeId], references: [id])
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+}
+
+model Movie {
+    id       String @id @default(uuid())
+    title    String
+    copies   Int
+    director String
+    genre    String
+
+    materialTypeId String
+    materialType   MaterialType @relation(fields: [materialTypeId], references: [id])
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+}
+
+model User {
+    id       String @id @default(uuid())
+    email    String @unique
+    password String
+    loans    Loan[]
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+}
+
+model Loan {
+    id             String       @id @default(uuid())
+    userId         String
+    user           User         @relation(fields: [userId], references: [id])
+    materialId     String
+    materialTypeId String
+    materialType   MaterialType @relation(fields: [materialTypeId], references: [id])
+    dueDate        DateTime
+    returned       Boolean      @default(false)
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+}
